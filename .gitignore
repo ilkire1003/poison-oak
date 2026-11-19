@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+logs/
+media/
+
+# OpenClaw agent scaffolding, not project content
+AGENTS.md
+BOOTSTRAP.md
+IDENTITY.md
+SOUL.md
+USER.md
