@@ -40,10 +40,14 @@ def classifier_logit(encoder, head, pixel_batch, target_class):
 
 def make_guidance_callback(pipe, encoder, head, target_class, guidance_scale):
     def callback(_pipe, _step_index, _timestep, callback_kwargs):
-        latents = callback_kwargs["latents"].detach().requires_grad_(True)
-        pixels = pipe.vae.decode(latents / pipe.vae.config.scaling_factor).sample
-        logit = classifier_logit(encoder, head, pixels, target_class)
-        grad = torch.autograd.grad(logit, latents)[0]
+        # pipe.__call__ runs under @torch.no_grad(); callbacks fire inside that
+        # same context, so autograd.grad needs an explicit enable_grad() here
+        # or it has no graph to differentiate through.
+        with torch.enable_grad():
+            latents = callback_kwargs["latents"].detach().requires_grad_(True)
+            pixels = pipe.vae.decode(latents / pipe.vae.config.scaling_factor).sample
+            logit = classifier_logit(encoder, head, pixels, target_class)
+            grad = torch.autograd.grad(logit, latents)[0]
         callback_kwargs["latents"] = (latents + guidance_scale * grad).detach()
         return callback_kwargs
     return callback
