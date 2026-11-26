@@ -1,2 +1,0 @@
-[poison-oak/sessions/poison-oak/b7552d06-81d8-4de9-ad55-1779c07a638d#L23] User: You can kick it off, do some smoketests along the way to verify, fetch the data as well.
-[poison-oak/sessions/poison-oak/b7552d06-81d8-4de9-ad55-1779c07a638d#L24] Assistant: Now the counts check (Week-1-Day-1 coverage task): Counts look workable — even the thinnest (Vitis californica, 233) clears the "few hundred per species" bar. Now a download smoketest to verify the pipeline actually pulls images: The smoketest is clean — imag
