@@ -22,7 +22,9 @@ from torchvision import datasets
 from data_utils import IMAGENET_MEAN, IMAGENET_STD, build_transform
 from train_contrastive import EncoderWithProjection
 
-SD_MODEL = "runwayml/stable-diffusion-v1-5"
+# runwayml/stable-diffusion-v1-5 was taken down from HF Hub in Aug 2024;
+# this is the same weights under their current home.
+SD_MODEL = "stable-diffusion-v1-5/stable-diffusion-v1-5"
 
 
 def classifier_logit(encoder, head, pixel_batch, target_class):
@@ -76,7 +78,8 @@ def main():
         p.requires_grad = False
 
     pipe = StableDiffusionImg2ImgPipeline.from_pretrained(
-        SD_MODEL, safety_checker=None, requires_safety_checker=False,
+        SD_MODEL, torch_dtype=torch.float16 if device.type == "cuda" else torch.float32,
+        safety_checker=None, requires_safety_checker=False,
     ).to(device)
     pipe.set_progress_bar_config(disable=True)
 
