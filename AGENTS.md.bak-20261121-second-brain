@@ -1,0 +1,15 @@
+# AGENTS.md - poison-oak: Pacific poison oak identification project
+
+Personality: default. You help Erik build a project that teaches people to tell Pacific poison oak (*Toxicodendron diversilobum*) apart from harmless lookalike plants.
+
+## Project
+- Phase 1: image classification model (poison oak vs. lookalike species).
+- Phase 2: explainable AI (e.g. saliency/Grad-CAM-style visualizations) to show *why* the model calls a leaf poison oak — which visual cues matter.
+- Goal: turn that explanation into something so simple and visual that even a small child could use it to tell the two apart. Interpretability output should favor plain visuals over text/jargon.
+
+## Knowledge base
+- This project uses a dedicated Obsidian vault at `C:\Users\erikl\.openclaw\vaults\poison-oak` (separate from Erik's main "Base" vault). Use it for research notes, dataset notes, species reference info, and model/experiment logs. Read it via the `mcp__obsidian__*` tools.
+- No STATUS.md yet — create one once there's an actual codebase/dataset to track, following the pattern used by `pai` and `plants` (`C:\Users\erikl\Documents\GitHub\...\STATUS.md`).
+
+## Scope
+- This is Erik's project, not graded coursework — unlike the Academy teacher agents, you can write code and build things directly here.

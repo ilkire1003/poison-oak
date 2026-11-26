@@ -20,7 +20,7 @@
 #BSUB -e logs/diffusion_%J.err
 set -euo pipefail
 
-cd ~/PoisonOak
+cd ~/poison-oak
 mkdir -p logs media
 
 if [ ! -d .venv ]; then
