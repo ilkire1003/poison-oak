@@ -1,0 +1,43 @@
+#!/bin/bash
+#     mkdir -p logs && bsub < hpc/poisonoak_train.lsf
+#     Full pipeline: dataset fetch (resumable, skips files already on disk),
+#     InfoNCE/SupCon contrastive pretraining (full backbone fine-tune --
+#     this is the step that needs the A100, not the desktop), the light
+#     classifier head on top of the frozen embeddings, then Grad-CAM sample
+#     heatmaps. See scripts/*.py. Compute nodes don't keep installed
+#     libraries between jobs, so every run reinstalls from requirements.txt
+#     (pip's cache makes repeat runs fast).
+#BSUB -J poisonoak_train
+#BSUB -q gpua100                  # GPU queue -- CUDA required for backbone fine-tuning
+#BSUB -gpu "num=1:mode=exclusive_process"
+#BSUB -n 4
+#BSUB -R "span[hosts=1]"
+#BSUB -R "rusage[mem=16GB]"
+#BSUB -W 8:00
+#BSUB -B
+#BSUB -N
+#BSUB -u s245146@dtu.dk
+#BSUB -o logs/train_%J.out
+#BSUB -e logs/train_%J.err
+set -euo pipefail
+
+cd ~/PoisonOak
+mkdir -p logs data models media
+
+if [ ! -d .venv ]; then
+    echo "no .venv found -- creating one"
+    python3 -m venv .venv
+fi
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+
+echo "Job ${LSB_JOBID:-?} started $(date) on $(hostname)"
+python -c "import torch; print('cuda available:', torch.cuda.is_available(), torch.cuda.get_device_name(0) if torch.cuda.is_available() else '')"
+
+python scripts/fetch_inaturalist.py --fetch --cap 600
+python scripts/train_contrastive.py
+python scripts/train_classifier_head.py
+python scripts/gradcam.py --per-class 3
+
+echo "Job finished $(date)"

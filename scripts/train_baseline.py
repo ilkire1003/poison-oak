@@ -8,32 +8,13 @@ training), per the Week 1 baseline-classifier step in the design doc.
 """
 import argparse
 import pathlib
-import random
 
 import torch
 from torch import nn
-from torch.utils.data import DataLoader, Subset
-from torchvision import datasets, models, transforms
+from torch.utils.data import DataLoader
+from torchvision import datasets, models
 
-IMAGENET_MEAN = [0.485, 0.456, 0.406]
-IMAGENET_STD = [0.229, 0.224, 0.225]
-
-
-def stratified_split(dataset, val_frac, test_frac, seed=0):
-    by_class = {}
-    for idx, (_, label) in enumerate(dataset.samples):
-        by_class.setdefault(label, []).append(idx)
-    rng = random.Random(seed)
-    train_idx, val_idx, test_idx = [], [], []
-    for label, idxs in by_class.items():
-        rng.shuffle(idxs)
-        n = len(idxs)
-        n_val = max(1, int(n * val_frac))
-        n_test = max(1, int(n * test_frac))
-        val_idx += idxs[:n_val]
-        test_idx += idxs[n_val:n_val + n_test]
-        train_idx += idxs[n_val + n_test:]
-    return Subset(dataset, train_idx), Subset(dataset, val_idx), Subset(dataset, test_idx)
+from data_utils import build_transform, stratified_split
 
 
 def run_epoch(model, loader, device, optimizer=None):
@@ -68,13 +49,7 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"device: {device}")
 
-    # rescale every image to the backbone's expected 224x224 input
-    transform = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
-    ])
-    dataset = datasets.ImageFolder(args.data_dir, transform=transform)
+    dataset = datasets.ImageFolder(args.data_dir, transform=build_transform())
     print(f"classes: {dataset.classes}")
     if len(dataset.classes) < 2:
         raise SystemExit(f"need >=2 species folders with images in {args.data_dir}, found {dataset.classes}")
