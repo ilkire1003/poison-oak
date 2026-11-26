@@ -1,0 +1,7 @@
+[
+  {"slug": "poison-oak", "name": "Toxicodendron diversilobum", "role": "target"},
+  {"slug": "skunkbush", "name": "Rhus trilobata", "role": "lookalike"},
+  {"slug": "box-elder", "name": "Acer negundo", "role": "lookalike"},
+  {"slug": "california-blackberry", "name": "Rubus ursinus", "role": "lookalike"},
+  {"slug": "california-wild-grape", "name": "Vitis californica", "role": "lookalike"}
+]
