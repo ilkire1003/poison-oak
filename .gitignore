@@ -9,7 +9,10 @@ models/
 
 # OpenClaw agent scaffolding, not project content
 AGENTS.md
+AGENTS.md.bak*
 BOOTSTRAP.md
 IDENTITY.md
 SOUL.md
 USER.md
+DREAMS.md
+memory/
