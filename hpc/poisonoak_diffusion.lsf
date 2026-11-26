@@ -1,0 +1,42 @@
+#!/bin/bash
+#     mkdir -p logs && bsub < hpc/poisonoak_diffusion.lsf
+#     Run AFTER poisonoak_train.lsf has finished and produced
+#     models/classifier_head.pt. Loads that checkpoint plus a pretrained
+#     Stable Diffusion model (~4GB download, cached after first run) to
+#     generate classifier-guided counterfactual edits. See
+#     scripts/diffusion_counterfactual.py. Kept as its own job so it doesn't
+#     add diffusers/transformers/the SD download to the main training run.
+#BSUB -J poisonoak_diffusion
+#BSUB -q gpua100                  # GPU queue -- SD + guidance needs CUDA
+#BSUB -gpu "num=1:mode=exclusive_process"
+#BSUB -n 4
+#BSUB -R "span[hosts=1]"
+#BSUB -R "rusage[mem=16GB]"
+#BSUB -W 2:00
+#BSUB -B
+#BSUB -N
+#BSUB -u s245146@dtu.dk
+#BSUB -o logs/diffusion_%J.out
+#BSUB -e logs/diffusion_%J.err
+set -euo pipefail
+
+cd ~/PoisonOak
+mkdir -p logs media
+
+if [ ! -d .venv ]; then
+    echo "no .venv found -- creating one"
+    python3 -m venv .venv
+fi
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+
+if [ ! -f models/classifier_head.pt ]; then
+    echo "models/classifier_head.pt not found -- run poisonoak_train.lsf first" >&2
+    exit 1
+fi
+
+echo "Job ${LSB_JOBID:-?} started $(date) on $(hostname)"
+python scripts/diffusion_counterfactual.py --per-class 2
+
+echo "Job finished $(date)"
