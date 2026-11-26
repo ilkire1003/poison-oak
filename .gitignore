@@ -3,6 +3,9 @@ __pycache__/
 *.pyc
 logs/
 media/
+data/raw/
+data/fetch.log
+models/
 
 # OpenClaw agent scaffolding, not project content
 AGENTS.md
