@@ -4,9 +4,9 @@
 #     InfoNCE/SupCon contrastive pretraining (full backbone fine-tune --
 #     this is the step that needs the A100, not the desktop), the light
 #     classifier head on top of the frozen embeddings, then Grad-CAM sample
-#     heatmaps. See scripts/*.py. Compute nodes don't keep installed
-#     libraries between jobs, so every run reinstalls from requirements.txt
-#     (pip's cache makes repeat runs fast).
+#     heatmaps. See scripts/*.py. .venv lives under ~/poison-oak (zhome, not
+#     scratch), so it persists across jobs -- install only runs once, on the
+#     first job that doesn't find .venv yet.
 #BSUB -J poisonoak_train
 #BSUB -q gpua100                  # GPU queue -- CUDA required for backbone fine-tuning
 #BSUB -gpu "num=1:mode=exclusive_process"
@@ -21,16 +21,23 @@
 #BSUB -e logs/train_%J.err
 set -euo pipefail
 
+module load python3/3.11.9
+
 cd ~/poison-oak
 mkdir -p logs data models media
 
-if [ ! -d .venv ]; then
-    echo "no .venv found -- creating one"
+if [ ! -f .venv/.installed ]; then
+    echo "no completed .venv found -- (re)creating and installing requirements.txt"
+    rm -rf .venv
     python3 -m venv .venv
+    source .venv/bin/activate
+    pip install --upgrade pip
+    pip install --no-cache-dir torch==2.5.1+cu121 torchvision==0.20.1+cu121 --index-url https://download.pytorch.org/whl/cu121
+    pip install --no-cache-dir -r requirements.txt
+    touch .venv/.installed
+else
+    source .venv/bin/activate
 fi
-source .venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
 
 echo "Job ${LSB_JOBID:-?} started $(date) on $(hostname)"
 python -c "import torch; print('cuda available:', torch.cuda.is_available(), torch.cuda.get_device_name(0) if torch.cuda.is_available() else '')"
