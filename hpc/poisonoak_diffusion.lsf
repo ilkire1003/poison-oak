@@ -4,8 +4,7 @@
 #     models/classifier_head.pt. Loads that checkpoint plus a pretrained
 #     Stable Diffusion model (~4GB download, cached after first run) to
 #     generate classifier-guided counterfactual edits. See
-#     scripts/diffusion_counterfactual.py. Kept as its own job so it doesn't
-#     add diffusers/transformers/the SD download to the main training run.
+#     scripts/diffusion_counterfactual.py. Data symlinks to work3.
 #BSUB -J poisonoak_diffusion
 #BSUB -q gpua100                  # GPU queue -- SD + guidance needs CUDA
 #BSUB -gpu "num=1:mode=exclusive_process"
@@ -23,6 +22,13 @@ set -euo pipefail
 module load python3/3.11.9
 
 cd ~/poison-oak
+
+# Data lives on work3 (same symlink as training job)
+WORK3_DATA=/work3/$(whoami)/poison-oak/data/raw
+if [ ! -e data/raw ]; then
+    ln -sf "$WORK3_DATA" data/raw
+fi
+
 mkdir -p logs media
 
 if [ ! -f .venv/.installed ]; then

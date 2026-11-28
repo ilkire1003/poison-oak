@@ -4,9 +4,8 @@
 #     InfoNCE/SupCon contrastive pretraining (full backbone fine-tune --
 #     this is the step that needs the A100, not the desktop), the light
 #     classifier head on top of the frozen embeddings, then Grad-CAM sample
-#     heatmaps. See scripts/*.py. .venv lives under ~/poison-oak (zhome, not
-#     scratch), so it persists across jobs -- install only runs once, on the
-#     first job that doesn't find .venv yet.
+#     heatmaps. See scripts/*.py.
+#     Data lives on work3 (290GB quota vs 30GB on zhome).
 #BSUB -J poisonoak_train
 #BSUB -q gpua100                  # GPU queue -- CUDA required for backbone fine-tuning
 #BSUB -gpu "num=1:mode=exclusive_process"
@@ -24,7 +23,15 @@ set -euo pipefail
 module load python3/3.11.9
 
 cd ~/poison-oak
-mkdir -p logs data models media
+
+# Create data symlink pointing to work3 (290GB quota vs 30GB on zhome)
+WORK3_DATA=/work3/$(whoami)/poison-oak/data/raw
+mkdir -p "$WORK3_DATA"
+if [ ! -e data/raw ]; then
+    ln -sf "$WORK3_DATA" data/raw
+fi
+
+mkdir -p logs models media
 
 if [ ! -f .venv/.installed ]; then
     echo "no completed .venv found -- (re)creating and installing requirements.txt"
