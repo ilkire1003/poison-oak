@@ -26,9 +26,11 @@ cd "$LS_SUBCWD"
 
 # Create data symlink pointing to work3 (290GB quota vs 30GB on zhome)
 WORK3_DATA=/work3/$(whoami)/poison-oak/data/raw
-mkdir -p "$WORK3_DATA"
-if [ ! -e data/raw ]; then
-    ln -sf "$WORK3_DATA" data/raw
+if [ "$PWD/data/raw" != "$WORK3_DATA" ]; then
+    mkdir -p "$WORK3_DATA"
+    if [ ! -e data/raw ]; then
+        ln -sf "$WORK3_DATA" data/raw
+    fi
 fi
 
 mkdir -p logs models media

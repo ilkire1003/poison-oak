@@ -25,7 +25,7 @@ cd "$LS_SUBCWD"
 
 # Data lives on work3 (same symlink as training job)
 WORK3_DATA=/work3/$(whoami)/poison-oak/data/raw
-if [ ! -e data/raw ]; then
+if [ "$PWD/data/raw" != "$WORK3_DATA" ] && [ ! -e data/raw ]; then
     ln -sf "$WORK3_DATA" data/raw
 fi
 
