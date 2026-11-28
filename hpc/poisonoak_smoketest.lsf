@@ -23,7 +23,7 @@ set -euo pipefail
 
 module load python3/3.11.9
 
-cd ~/poison-oak
+cd "$LS_SUBCWD"
 mkdir -p logs
 
 if [ ! -f .venv/.installed ]; then

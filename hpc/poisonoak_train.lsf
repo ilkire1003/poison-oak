@@ -22,7 +22,7 @@ set -euo pipefail
 
 module load python3/3.11.9
 
-cd ~/poison-oak
+cd "$LS_SUBCWD"
 
 # Create data symlink pointing to work3 (290GB quota vs 30GB on zhome)
 WORK3_DATA=/work3/$(whoami)/poison-oak/data/raw
